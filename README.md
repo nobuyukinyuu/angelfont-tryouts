@@ -1,7 +1,7 @@
 angelfont-tryouts
 =================
 
-This is a fork of the variable-width font module AngelFont which provides bugfixes and optimizations over the pack-in version.
+This is a fork of the variable-width font module AngelFont which provides bugfixes and optimizations over the Monkey pack-in version.
 
 ## Features
 * Ascii-encoded .fnt loading, no conversion necessary
