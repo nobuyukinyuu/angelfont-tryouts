@@ -5,11 +5,13 @@
 .docs/
 
 # Ignore Jungle IDE files
-example.jungle*
-example.jiproj*
+*.jungle*
+*.jiproj*
 
 # Ignore thumbs
 Thumbs.db
 
 # Ignore compiled APKs
 *.apk
+
+debug.log

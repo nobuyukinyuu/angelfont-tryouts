@@ -65,7 +65,8 @@ Class AngelFont
 		Return chars
 	End
 
-	Method LoadFont:Void(url:String)			'deprecated, you probably shouldn't use this for anything except old AngelFont compatibility
+	'Summary: deprecated, you probably shouldn't use this for anything except old AngelFont compatibility
+	Method LoadFont:Void(url:String)
 		
 		err = ""
 		current = Self
@@ -119,7 +120,7 @@ Class AngelFont
 		image[0] = LoadImage(url+".png")
 	End Method
 
-	'Summary: Loads a .fnt encoded in plaintext!  Faster loading than LoadFontXml() on Android?  Hope so... -nobu	
+	'Summary: Loads a .fnt encoded in plaintext.  Faster loading than LoadFontXml() on Android?  Hope so... -nobu	
 	Method LoadPlain:Void(url:String)
 		
 		current = Self
@@ -209,6 +210,7 @@ Class AngelFont
 		Next
 
 		'Load the images hungnlfn
+		'note:  FIXME,  read from the metadata instead of looking for the file manually.  Set pagecount based on metadata later, too..
 		For Local page:= 0 To pageCount
 			If image.Length < page+1 image = image.Resize(page+1)
 			image[page] = LoadImage(url + "_" + page + ".png")
@@ -268,6 +270,7 @@ Class AngelFont
 				firstKp.Add(second, New KernPair(first, second, Int(node.GetAttribute("amount"))))
 			End
 			
+			'note:  FIXME,  read from the metadata instead of looking for the file manually.  Set pagecount based on metadata later, too..
 			If pageCount = 0
 				image[0] = LoadImage(url+".png")
 				If image[0] = Null image[0] = LoadImage(url+"_0.png")
