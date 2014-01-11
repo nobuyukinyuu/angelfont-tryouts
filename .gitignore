@@ -2,12 +2,13 @@
 /*.build/
 
 # Ignore the docs folder
-.docs/
+/*.docs/
 
 # Ignore Jungle IDE files
 *.jungle*
 *.jiproj*
-*.jungl
+*.jipo
+*.JILayout
 
 # Ignore thumbs
 Thumbs.db

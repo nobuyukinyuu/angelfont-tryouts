@@ -1,5 +1,5 @@
-'Angelfont tryouts -- Unofficial AngelFont fixes and more.
-'For more information, visit here:  http://github.com/[url]
+'AngelFont Tryouts -- Unofficial AngelFont fixes and more.
+'For more information, visit here:  http://github.com/nobuyukinyuu/angelfont-tryouts
 
 #TEXT_FILES="*.txt|*.xml|*.json|*.fnt"
 
@@ -130,6 +130,8 @@ Class AngelFont
 		Local attribs:String[] 'Placeholder for an individual line's attributes, split up
 		Local pageCount:Int  'How many pages does this font contain?
 		
+		Local AttemptFallbackImageLoading:Bool
+		
 		For Local line:String = EachIn lines
 		
 			line = line.Trim()
@@ -137,7 +139,35 @@ Class AngelFont
 			If line.StartsWith("info") Then 'general info about the font in this line.
 				Continue 'Next line
 			ElseIf line.StartsWith("common") Then 'common info here
-				Continue 'Next line
+				attribs = line.Split(" ") 'Get each attrib in this line.
+				For Local i:Int = 0 Until attribs.Length
+					If attribs[i] = "" Then 'Residual .Split() cruft; Escape early
+						Continue 'Next attrib
+					ElseIf attribs[i].StartsWith("pages=")
+						pageCount = int(attribs[i][attribs[i].FindLast("=") + 1 ..])
+						image = image.Resize(pageCount)
+					End If
+				Next
+			ElseIf line.StartsWith("page") Then 'information about an image page.
+				Local imgUrl:String, imgPage:Int = -1
+				
+				attribs = line.Split(" ") 'Get each attrib in this line.
+				For Local i:Int = 0 Until attribs.Length
+					If attribs[i] = "" Then 'Residual .Split() cruft; Escape early
+						Continue 'Next attrib
+					ElseIf attribs[i].StartsWith("id=")
+						imgPage = int(attribs[i][attribs[i].FindLast("=") + 1 ..])
+					ElseIf attribs[i].StartsWith("file=")
+						imgUrl = attribs[i][attribs[i].Find("~q") + 1 .. attribs[i].FindLast("~q")]
+					End If
+				Next
+				
+				If imgUrl <> "" And imgPage >= 0  'Metadata found!
+					image[imgPage] = LoadImage(imgUrl)
+				Else 'Oh no, something went wrong.  Fallback to the old method
+					AttemptFallbackImageLoading = True
+				End If
+			
 			ElseIf line.StartsWith("chars") 'number of chars available.
 				Continue 'Next line
 			ElseIf line.StartsWith("char ") Then 'Char info here. Parse.				
@@ -167,10 +197,10 @@ Class AngelFont
 						xAdvance = int(attribs[i][attribs[i].FindLast("=") + 1 ..])
 					ElseIf attribs[i].StartsWith("page=")
 						page = int(attribs[i][attribs[i].FindLast("=") + 1 ..])
-						If pageCount < page pageCount = page
+						'If pageCount < page pageCount = page
 					End If
 				Next
-				'WARNING: This will crash on unicode chars with "index out of range"  -nobu
+				'note:  WARNING: This will crash on unicode chars with "index out of range"  -nobu
 				chars[id] = New Char(x, y, w, h, xOffset, yOffset, xAdvance, page)
 				
 				Local ch:= chars[id]
@@ -209,12 +239,13 @@ Class AngelFont
 			
 		Next
 
-		'Load the images hungnlfn
-		'note:  FIXME,  read from the metadata instead of looking for the file manually.  Set pagecount based on metadata later, too..
-		For Local page:= 0 To pageCount
-			If image.Length < page+1 image = image.Resize(page+1)
-			image[page] = LoadImage(url + "_" + page + ".png")
-		End
+		'Old fallback method for loading images
+		If AttemptFallbackImageLoading
+			For Local page:= 0 Until pageCount
+				If image.Length() < page + 1 Then image = image.Resize(page + 1)
+				image[page] = LoadImage(url + "_" + page + ".png")
+			End			
+		End If
 
 	End Method
 
